@@ -1,5 +1,6 @@
 package com.msa.accounts.dto;
 
+import com.msa.accounts.entity.accounts.Accounts;
 import lombok.Data;
 
 
@@ -11,5 +12,7 @@ public class CustomerDto {
     private String email;
 
     private String mobileNumber;
+
+    private AccountsDto accountsDto;
 
 }

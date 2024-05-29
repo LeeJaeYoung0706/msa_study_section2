@@ -9,4 +9,18 @@ public interface IAccountService {
      * @param customerDto
      */
     void createAccount(CustomerDto customerDto);
+
+    /**
+     * 핸드폰 번호 변경
+     * @param mobileNumber
+     * @return
+     */
+    CustomerDto fetchAccount(String mobileNumber);
+
+    /**
+     * Account 정보 변경
+     * @param customerDto
+     * @return
+     */
+    boolean updateAccount(CustomerDto customerDto);
 }

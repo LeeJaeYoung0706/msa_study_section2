@@ -15,4 +15,10 @@ public class AccountsMapper {
         return Accounts.createdAccounts(customer_id, accountsDto.getAccountNumber(), accountsDto.getAccountType(), accountsDto.getBranchAddress());
     }
 
+    public static Accounts mapToAccounts(AccountsDto accountsDto, Accounts accounts) {
+        accounts.setAccountNumber(accountsDto.getAccountNumber());
+        accounts.setAccountType(accountsDto.getAccountType());
+        accounts.setBranchAddress(accountsDto.getBranchAddress());
+        return accounts;
+    }
 }

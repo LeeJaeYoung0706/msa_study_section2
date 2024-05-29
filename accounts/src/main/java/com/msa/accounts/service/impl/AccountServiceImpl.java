@@ -8,12 +8,14 @@ import com.msa.accounts.entity.accounts.AccountsMapper;
 import com.msa.accounts.entity.customer.Customer;
 import com.msa.accounts.entity.customer.CustomerMapper;
 import com.msa.accounts.exceptions.CustomerAlreadyExistsException;
+import com.msa.accounts.exceptions.ResourceNotFoundException;
 import com.msa.accounts.repository.AccountsRepository;
 import com.msa.accounts.repository.CustomerRepository;
 import com.msa.accounts.service.IAccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Random;
@@ -56,7 +58,54 @@ public class AccountServiceImpl implements IAccountService {
         accountsDto.setBranchAddress(AccountsConstants.ADDRESS);
         accountsDto.setAccountType(AccountsConstants.SAVINGS);
         Accounts accounts = AccountsMapper.mapToAccounts(accountsDto, customerId);
-        log.info("test = {}" , accounts.toString());
         return accounts;
+    }
+
+    /**
+     * 핸드폰 번호 변경
+     *
+     * @param mobileNumber
+     * @return
+     */
+    @Override
+    public CustomerDto fetchAccount(String mobileNumber) {
+        Customer customer = customerRepository.findByMobileNumber(mobileNumber).orElseThrow(() ->
+                new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber)
+        );
+        Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId()).orElseThrow(() ->
+                new ResourceNotFoundException("Accounts", "customerId", customer.getCustomerId().toString())
+        );
+        CustomerDto customerDto = CustomerMapper.mapToCustomerDto(customer, new CustomerDto());
+        customerDto.setAccountsDto(AccountsMapper.mapToAccountsDto(accounts, new AccountsDto()));
+
+        return customerDto;
+    }
+
+    /**
+     * Account 정보 변경
+     *
+     * @param customerDto
+     * @return
+     */
+    @Override
+    public boolean updateAccount(CustomerDto customerDto) {
+        boolean isUpdated = false;
+        AccountsDto accountsDto = customerDto.getAccountsDto();
+        if(accountsDto != null ){
+            Accounts accounts = accountsRepository.findById(accountsDto.getAccountNumber()).orElseThrow(
+                    () -> new ResourceNotFoundException("Account", "AccountNumber", accountsDto.getAccountNumber().toString())
+            );
+            AccountsMapper.mapToAccounts(accountsDto, accounts);
+            //accounts = accountsRepository.save(accounts);
+
+            Long customerId = accounts.getCustomerId();
+            Customer customer = customerRepository.findById(customerId).orElseThrow(
+                    () -> new ResourceNotFoundException("Customer", "CustomerID", customerId.toString())
+            );
+            CustomerMapper.mapToCustomer(customerDto,customer);
+            //customerRepository.save(customer);
+            isUpdated = true;
+        }
+        return isUpdated;
     }
 }
