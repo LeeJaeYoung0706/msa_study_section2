@@ -96,16 +96,42 @@ public class AccountServiceImpl implements IAccountService {
                     () -> new ResourceNotFoundException("Account", "AccountNumber", accountsDto.getAccountNumber().toString())
             );
             AccountsMapper.mapToAccounts(accountsDto, accounts);
-            //accounts = accountsRepository.save(accounts);
+            accounts = accountsRepository.save(accounts);
 
             Long customerId = accounts.getCustomerId();
             Customer customer = customerRepository.findById(customerId).orElseThrow(
                     () -> new ResourceNotFoundException("Customer", "CustomerID", customerId.toString())
             );
             CustomerMapper.mapToCustomer(customerDto,customer);
-            //customerRepository.save(customer);
+
+            customerRepository.save(customer);
             isUpdated = true;
         }
         return isUpdated;
+    }
+
+    /**
+     * 정보 삭제
+     *
+     * @param mobileNumber
+     * @return
+     */
+    @Override
+    @Transactional
+    public boolean deleteAccount(String mobileNumber) {
+        Customer customer = customerRepository.findByMobileNumber(mobileNumber).orElseThrow(
+                () -> new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber)
+        );
+//        Customer customer2 = customerRepository.findByMobileNumber("1234").orElseThrow(
+//                () -> new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber)
+//        );
+//        CustomerDto customerDto = CustomerMapper.mapToCustomerDto(customer2, new CustomerDto());
+//        customerDto.setName("4321");
+//        Accounts byCustomerId = accountsRepository.findByCustomerId(customer2.getCustomerId()).get();
+//        customerDto.setAccountsDto(AccountsMapper.mapToAccountsDto(byCustomerId, new AccountsDto()));
+//        this.updateAccount(customerDto);
+        accountsRepository.deleteByCustomerId(customer.getCustomerId());
+        customerRepository.deleteById(customer.getCustomerId());
+        return true;
     }
 }

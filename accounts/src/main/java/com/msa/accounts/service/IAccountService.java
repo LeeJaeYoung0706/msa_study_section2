@@ -23,4 +23,11 @@ public interface IAccountService {
      * @return
      */
     boolean updateAccount(CustomerDto customerDto);
+
+    /**
+     * 정보 삭제
+     * @param mobileNumber
+     * @return
+     */
+    boolean deleteAccount(String mobileNumber);
 }
